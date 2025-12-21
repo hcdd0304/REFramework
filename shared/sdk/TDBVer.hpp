@@ -5,7 +5,7 @@
 #elif defined(PRAGMATA)
 #define TDB_VER 84
 #elif defined(MHWILDS)
-#define TDB_VER 74
+#define TDB_VER 81
 #elif defined(DD2)
 #define TDB_VER 73
 #elif defined(SF6)
