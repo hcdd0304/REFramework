@@ -455,24 +455,13 @@ sol::protected_function_result ScriptState::handle_protected_result(sol::protect
     return result;
 }
 
-static std::uint64_t stuff = 0;
-
 void ScriptState::on_frame() {
     try {
         std::scoped_lock _{ m_execution_mutex };
 
-        volatile int current_number_call = 0;
-        volatile int temporary_to_hold = 0;
-
         auto guard = m_on_frame_fns.acquire_iteration();
         for (auto& fn : m_on_frame_fns.get()) {
-            if (current_number_call == 4) {
-                temporary_to_hold = 5;
-                stuff = (std::uint64_t)&fn;
-            }
-
             handle_protected_result(fn());
-            current_number_call++;
         }
     } catch (const std::exception& e) {
         ScriptRunner::get()->spew_error(e.what());
