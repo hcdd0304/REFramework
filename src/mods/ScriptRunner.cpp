@@ -116,20 +116,6 @@ std::string get_build_time() {
 }
 }
 
-static int debugggg = 10;
-
-__declspec(noinline) static void log_stuff_info(const char* msg) {
-    std::string_view msg_str{msg};
-    if (msg_str.contains("Hey New resource: ")) {
-        debugggg += 1;
-        __debugbreak();
-    } else if (msg_str.contains("Hoe New resource: ")) {
-        debugggg += 1;
-        __debugbreak();
-    }
-    api::log::info(msg);
-}
-
 ScriptState::ScriptState(const ScriptState::GarbageCollectionData& gc_data,bool is_main_state) {
     std::scoped_lock _{ m_execution_mutex };
     m_is_main_state = is_main_state;
@@ -176,7 +162,7 @@ ScriptState::ScriptState(const ScriptState::GarbageCollectionData& gc_data,bool 
     m_lua["thread"] = thread;
 
     auto log = m_lua.create_table();
-    log["info"] = log_stuff_info;
+    log["info"] = api::log::info;
     log["warn"] = api::log::warn;
     log["error"] = api::log::error;
     log["debug"] = api::log::debug;
