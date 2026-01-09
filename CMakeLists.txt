@@ -2180,6 +2180,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE2 SHARED)
@@ -2379,6 +2380,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE2_TDB66 SHARED)
@@ -4227,6 +4229,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE3 SHARED)
@@ -4426,6 +4429,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE3_TDB67 SHARED)
@@ -4625,6 +4629,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE4 SHARED)
@@ -7299,6 +7304,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE7 SHARED)
@@ -7498,6 +7504,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE7_TDB49 SHARED)
@@ -8523,6 +8530,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(RE8 SHARED)
@@ -9546,6 +9554,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(DMC5 SHARED)
@@ -10571,6 +10580,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(MHRISE SHARED)
@@ -11596,6 +11606,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(SF6 SHARED)
@@ -12621,6 +12632,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(DD2 SHARED)
@@ -13646,6 +13658,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(MHWILDS SHARED)
@@ -14671,6 +14684,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"src/re2-imgui/re2_imconfig.hpp"
 		"src/utility/ImGui.cpp"
 		"src/utility/ImGui.hpp"
+		"src/utility/SafeCallbackVector.hpp"
 	)
 
 	add_library(PRAGMATA SHARED)
