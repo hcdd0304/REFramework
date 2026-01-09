@@ -1585,6 +1585,20 @@ void bindings::open_sdk(ScriptState* s) {
     sdk["to_double"] = [](void* ptr) { return *(double*)&ptr; };
     sdk["to_float"] = [](void* ptr) { return *(float*)&ptr; };
     sdk["to_int64"] = [](void* ptr) { return *(int64_t*)&ptr; };
+    sdk["to_uint64_raw"] = [](sol::object obj) {
+        if (obj.is<::REManagedObject*>()) {
+            return *(uint64_t*)(uintptr_t*)obj.as<::REManagedObject*>();
+        } else {
+            return *(uint64_t*)(uintptr_t*)obj.as<void*>();
+        }
+    };
+    sdk["to_uint64_special"] = [](sol::object obj) {
+        if (obj.is<::REManagedObject*>()) {
+            return (uint64_t)(uintptr_t*)obj.as<::REManagedObject*>();
+        } else {
+            return (uint64_t)(uintptr_t*)obj.as<void*>();
+        }
+    };
     sdk["to_ptr"] = [](sol::object obj) {
         if (obj.is<int64_t>()) {
             const auto n = obj.as<int64_t>();
@@ -2008,7 +2022,10 @@ void bindings::open_sdk(ScriptState* s) {
                 return sol::make_object(s, sol::nil);
             }
 
-            return sol::make_object(s, (::REManagedObject*)holder);
+            // Add a permanent reference
+            utility::re_managed_object::add_ref(holder);
+
+            return sol::make_object(s, holder);
         },
         "get_address", [](::sdk::Resource* res) { return (uintptr_t)res; }
     );
