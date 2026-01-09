@@ -2022,9 +2022,6 @@ void bindings::open_sdk(ScriptState* s) {
                 return sol::make_object(s, sol::nil);
             }
 
-            // Add a permanent reference
-            utility::re_managed_object::add_ref(holder);
-
             return sol::make_object(s, holder);
         },
         "get_address", [](::sdk::Resource* res) { return (uintptr_t)res; }
