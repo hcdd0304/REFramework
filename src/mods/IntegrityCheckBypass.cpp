@@ -650,90 +650,107 @@ void IntegrityCheckBypass::patch_version_hook(safetyhook::Context& context) {
     spdlog::info("[IntegrityCheckBypass]: patch_version_hook called!");
 
     // Scan for amount of paks. Get exe directory. To be honest set this to 9999 is okay, but i feel like it might take a long time
-    int file_count_result = std::max<int>(scan_patch_files_count(), context.rax);
+    int file_count_result = scan_patch_files_count();
 
     switch (s_patch_version_reg_index) {
         case NDR_RAX:
+            file_count_result = std::max<int>(context.rax, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RAX to {}", context.rax, file_count_result);
             context.rax = file_count_result;
             break;
 
         case NDR_RCX:
+            file_count_result = std::max<int>(context.rcx, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RCX to {}", context.rcx, file_count_result);
             context.rcx = file_count_result;
             break;
 
         case NDR_RDX:
+            file_count_result = std::max<int>(context.rdx, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RDX to {}", context.rdx, file_count_result);
             context.rdx = file_count_result;
             break;
 
         case NDR_RBX:
+            file_count_result = std::max<int>(context.rbx, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RBX to {}", context.rbx, file_count_result);
             context.rbx = file_count_result;
             break;
 
         case NDR_RSP:
+            file_count_result = std::max<int>(context.rsp, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RSP to {}", context.rsp, file_count_result);
             context.rsp = file_count_result;
             break;
 
         case NDR_RBP:
+            file_count_result = std::max<int>(context.rbp, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RBP to {}", context.rbp, file_count_result);
             context.rbp = file_count_result;
             break;
 
         case NDR_RSI:
+            file_count_result = std::max<int>(context.rsi, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RSI to {}", context.rsi, file_count_result);
             context.rsi = file_count_result;
             break;
 
         case NDR_RDI:
+            file_count_result = std::max<int>(context.rdi, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at RDI to {}", context.rdi, file_count_result);
             context.rdi = file_count_result;
             break;
 
         case NDR_R8:
+            file_count_result = std::max<int>(context.r8, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R8 to {}", context.r8, file_count_result);
             context.r8 = file_count_result;
             break;
 
         case NDR_R9:
+            file_count_result = std::max<int>(context.r9, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R9 to {}", context.r9, file_count_result);
             context.r9 = file_count_result;
             break;
 
         case NDR_R10:
+            file_count_result = std::max<int>(context.r10, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R10 to {}", context.r10, file_count_result);
             context.r10 = file_count_result;
             break;
 
         case NDR_R11:
+            file_count_result = std::max<int>(context.r11, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R11 to {}", context.r11, file_count_result);
             context.r11 = file_count_result;
             break;
 
         case NDR_R12:
+            file_count_result = std::max<int>(context.r12, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R12 to {}", context.r12, file_count_result);
             context.r12 = file_count_result;
             break;
 
         case NDR_R13:
+            file_count_result = std::max<int>(context.r13, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R13 to {}", context.r13, file_count_result);
             context.r13 = file_count_result;
             break;
 
         case NDR_R14:
+            file_count_result = std::max<int>(context.r14, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R14 to {}", context.r14, file_count_result);
             context.r14 = file_count_result;
             break;
 
         case NDR_R15:
+            file_count_result = std::max<int>(context.r15, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Patch version: {}. Game wont load past this patch version. Setting new patch version at R15 to {}", context.r15, file_count_result);
             context.r15 = file_count_result;
             break;
 
         default:
+            file_count_result = std::max<int>(context.rax, file_count_result);
             spdlog::info("[IntegrityCheckBypass]: Unknown register, falling back to RAX for patch version: {} (update it to {})", context.rax, file_count_result);
             context.rax = file_count_result; // fallback to RAX
             break;
