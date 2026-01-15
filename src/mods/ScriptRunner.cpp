@@ -153,6 +153,10 @@ ScriptState::ScriptState(const ScriptState::GarbageCollectionData& gc_data,bool 
     re["on_frame"] = [this](sol::function fn) { m_on_frame_fns.add(fn); };
     re["on_script_reset"] = [this](sol::function fn) { m_on_script_reset_fns.add(fn); };
     re["on_config_save"] = [this](sol::function fn) { m_on_config_save_fns.add(fn); };
+    re.new_enum("CallbackNextAction",
+        "CONTINUE", ReCallbackNextAction::CONTINUE,
+        "STOP", ReCallbackNextAction::STOP
+    );
     m_lua["re"] = re;
 
     auto thread = m_lua.create_table();
@@ -455,13 +459,26 @@ sol::protected_function_result ScriptState::handle_protected_result(sol::protect
     return result;
 }
 
+bool ScriptState::should_remove_hook(const sol::object &result) {
+    if (!result.valid() || result.is<sol::nil_t>()) {
+        return false;
+    }
+
+    auto action = result.as<ReCallbackNextAction>();
+    return action == ReCallbackNextAction::STOP;
+}
+
 void ScriptState::on_frame() {
     try {
         std::scoped_lock _{ m_execution_mutex };
 
         auto guard = m_on_frame_fns.acquire_iteration();
         for (auto& fn : m_on_frame_fns.get()) {
-            handle_protected_result(fn());
+            sol::object result = handle_protected_result(fn());
+
+            if (should_remove_hook(result)) {
+                m_on_frame_fns.remove(fn);
+            }
         }
     } catch (const std::exception& e) {
         ScriptRunner::get()->spew_error(e.what());
@@ -479,7 +496,11 @@ void ScriptState::on_draw_ui() {
 
         auto guard = m_on_draw_ui_fns.acquire_iteration();
         for (auto& fn : m_on_draw_ui_fns.get()) {
-            handle_protected_result(fn());
+            sol::object result = handle_protected_result(fn());
+
+            if (should_remove_hook(result)) {
+                m_on_draw_ui_fns.remove(fn);
+            }
         }
     } catch (const std::exception& e) {
         ScriptRunner::get()->spew_error(e.what());
@@ -588,8 +609,14 @@ bool ScriptState::on_pre_gui_draw_element(REComponent* gui_element, void* contex
 
         auto guard = m_pre_gui_draw_element_fns.acquire_iteration();
         for (auto& fn : m_pre_gui_draw_element_fns.get()) {
-            if (sol::object result = handle_protected_result(fn(gui_element, context)); !result.is<sol::nil_t>() && result.is<bool>() && result.as<bool>() == false) {
-                any_false = true;
+            if (sol::object result = handle_protected_result(fn(gui_element, context))) {
+                if (!result.is<sol::nil_t>() && result.is<bool>() && result.as<bool>() == false) {
+                    any_false = true;
+                } else {
+                    if (should_remove_hook(result)) {
+                        m_pre_gui_draw_element_fns.remove(fn);
+                    }
+                }
             }
         }
     } catch (const std::exception& e) {
@@ -607,7 +634,11 @@ void ScriptState::on_gui_draw_element(REComponent* gui_element, void* context) {
 
         auto guard = m_gui_draw_element_fns.acquire_iteration();
         for (auto& fn : m_gui_draw_element_fns.get()) {
-            handle_protected_result(fn(gui_element, context));
+            sol::object result = handle_protected_result(fn(gui_element, context));
+
+            if (should_remove_hook(result)) {
+                m_gui_draw_element_fns.remove(fn);
+            }
         }
     } catch (const std::exception& e) {
         ScriptRunner::get()->spew_error(e.what());
@@ -622,12 +653,18 @@ void ScriptState::on_script_reset() try {
     // We first call on_config_save functions so scripts can save prior to reset.
     auto guard_save = m_on_config_save_fns.acquire_iteration();
     for (auto& fn : m_on_config_save_fns.get()) {
-        handle_protected_result(fn());
+        sol::object result = handle_protected_result(fn());
+        if (should_remove_hook(result)) {
+            m_on_config_save_fns.remove(fn);
+        }
     }
 
     auto guard_reset = m_on_script_reset_fns.acquire_iteration();
     for (auto& fn : m_on_script_reset_fns.get()) {
-        handle_protected_result(fn());
+        sol::object result = handle_protected_result(fn());
+        if (should_remove_hook(result)) {
+            m_on_script_reset_fns.remove(fn);
+        }
     }
 } catch (const std::exception& e) {
     ScriptRunner::get()->spew_error(e.what());
@@ -640,7 +677,11 @@ void ScriptState::on_config_save() try {
 
     auto guard = m_on_config_save_fns.acquire_iteration();
     for (auto& fn : m_on_config_save_fns.get()) {
-        handle_protected_result(fn());
+        sol::object result = handle_protected_result(fn());
+
+        if (should_remove_hook(result)) {
+            m_on_config_save_fns.remove(fn);
+        }
     }
 }
 catch (const std::exception& e) {
