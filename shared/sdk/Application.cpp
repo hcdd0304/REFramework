@@ -68,6 +68,7 @@ Application::Function* Application::get_functions() {
             spdlog::info("Skipping invalid Application::functions offset: {:x}", candidate);
         }
 
+#ifndef MHWILDS
         // For all the other RE Engine games in existence.
         for (auto ref = utility::scan(mod, "44 8B ? ? ? 00 00 4C 8D ? ? ? ? 00 41");
             ref;
@@ -105,6 +106,7 @@ Application::Function* Application::get_functions() {
 
             spdlog::info("Skipping invalid Application::functions offset: {:x}", candidate);
         }
+#endif
 
         bool found_wait_rendering = false;
         bool found_begin_rendering = false;
