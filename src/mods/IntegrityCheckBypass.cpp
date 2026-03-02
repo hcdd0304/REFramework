@@ -2163,7 +2163,6 @@ void IntegrityCheckBypass::find_try_hook_via_file_load_win32_create_file(uintptr
             }
         }
 
-        // Is next instruction testing if the result is zero/non-zero? If so, this is likely the call that opens the file stream, since it checks if the handle is valid.
         if (instr.Instruction == ND_INS_TEST) {
             if (instr.Operands[0].Type == ND_OP_REG && instr.Operands[0].Info.Register.Reg == NDR_RAX
                 && instr.Operands[1].Type == ND_OP_REG && instr.Operands[1].Info.Register.Reg == NDR_RAX) {
