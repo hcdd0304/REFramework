@@ -2,6 +2,7 @@
 #include <utility/Scan.hpp>
 #include <utility/Module.hpp>
 #include "REFramework.hpp"
+#include <format>
 
 #include <spdlog/sinks/basic_file_sink.h>
 
@@ -144,6 +145,25 @@ void LooseFileLoader::on_draw_ui() {
             }
         }
     }
+
+#if SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX
+    bool changed = m_enable_custom_platform_prefix->draw("Enable Loose File Platform Override");
+
+    if (m_enable_custom_platform_prefix->value()) {
+        bool prefix_changed = m_target_platform_prefix->draw("Target Platform Prefix");
+    
+        if (prefix_changed) {
+            std::unique_lock _{m_platform_prefix_mutex};
+            cached_platform_string.clear();
+        }
+
+        changed = changed || prefix_changed;
+    }
+
+    if (changed) {
+        g_framework->request_save_config();
+    }
+#endif
 }
 
 void LooseFileLoader::hook() {
@@ -308,6 +328,10 @@ void LooseFileLoader::hook() {
         return;
     }
 
+#if SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX
+    find_and_hook_sprintf_for_loose_file_paths();
+#endif
+
     m_hook_success = true;
 }
 
@@ -448,3 +472,102 @@ uint64_t LooseFileLoader::path_to_hash_hook(void* This, const wchar_t* path) {
 
     return result;
 }
+
+#if SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX
+// So far even with Pragmata, this string is only used for the purpose of formatting resource path
+static constexpr const wchar_t *PATH_FORMAT_STRING = L"%ls/%ls/%ls.%d";
+static constexpr const wchar_t *PATH_FORMAT_STRING_MORDEN_STD = L"{}/{}/{}.{}";
+
+void LooseFileLoader::find_and_hook_sprintf_for_loose_file_paths() {
+    auto game = utility::get_executable();
+    auto str_offset = utility::scan_string(game, PATH_FORMAT_STRING, true);
+    if (!str_offset) {
+        spdlog::error("[LooseFileLoader] Failed to find path format string for loose file platform override support");
+        return;
+    }
+
+    auto references = utility::scan_displacement_references(game, str_offset.value());
+
+    if (references.empty()) {
+        spdlog::error("[LooseFileLoader] Failed to find any references to path format string for loose file platform override support");
+        return;
+    }
+
+    for (auto ref : references) {
+        uintptr_t supposed_after_lea = ref + 4;
+        uintptr_t format_call_addr = 0;
+
+        const int SCAN_CALL_FORWARD_SIZE = 120;
+
+        utility::linear_decode((uint8_t*)supposed_after_lea, SCAN_CALL_FORWARD_SIZE, [&](utility::ExhaustionContext& ctx) -> bool {
+            if (ctx.instrux.Category == ND_CAT_CALL) {
+                format_call_addr = ctx.addr;
+                return false;
+            }
+
+            return true;
+        });
+
+        if (format_call_addr == 0) {
+            spdlog::error("[LooseFileLoader] Failed to find call using path format string for loose file platform override support");
+            continue;
+        } else {
+            auto hook = safetyhook::create_mid((void*)format_call_addr, &loose_file_path_sprintf_hook_wrapper);
+            if (!hook) {
+                spdlog::error("[LooseFileLoader] Failed to create hook for loose file platform override support at {:x}", format_call_addr);
+                continue;
+            } else {
+                spdlog::info("[LooseFileLoader] Successfully created hook for loose file platform override support at {:x}", format_call_addr);
+                m_loose_file_path_sprintf_hooks.push_back(std::move(hook));
+            }
+        }
+    }
+}
+
+void LooseFileLoader::loose_file_path_sprintf_hook(safetyhook::Context& context) {
+    if (!m_enable_custom_platform_prefix->value()) {
+        // Can risk this boolean being toggled on/off with race condition
+        return;
+    }
+
+    std::unique_lock _{m_platform_prefix_mutex};
+
+    if (cached_platform_string.empty()) {
+        cached_platform_string = utility::widen(m_target_platform_prefix->value());
+    }
+
+    // Safe check if convert still makes its empty
+    if (cached_platform_string.empty()) {
+        return;
+    }
+
+    // Format the path with the cached platform string
+    const wchar_t *prefix1 = (wchar_t*)context.r8;
+    const wchar_t *prefix2 = cached_platform_string.c_str();
+    const wchar_t *path = *(wchar_t**)(context.rsp + 0x20);
+    const int version = *(int*)(context.rsp + 0x28);
+
+    std::wstring formatted_path = std::vformat(PATH_FORMAT_STRING_MORDEN_STD, std::make_wformat_args(prefix1, prefix2, path, version));
+
+    //spdlog::info("[LooseFileLoader] Checking for existence of file with custom platform prefix: {}", utility::narrow(formatted_path));
+
+    const auto og = g_loose_file_loader->m_path_to_hash_hook->get_original<decltype(path_to_hash_hook)>();
+    const auto result = og(formatted_path.c_str());
+
+    // Only re-route if the file actually exists on disk, else error spam
+    if (!handle_path(formatted_path.c_str(), result)) {
+        return;
+    }
+
+    // File exists so re-route the platform prefix
+    // sprintf(result_string_buffer, "%ls/%ls/%ls.%d", "natives", getPlatformPrefix(), filePath, retrieveTargetFileVersion())
+    context.r9 = (uintptr_t)cached_platform_string.c_str();
+}
+
+void LooseFileLoader::loose_file_path_sprintf_hook_wrapper(safetyhook::Context& context) {
+    if (g_loose_file_loader == nullptr) {
+        return;
+    }
+    g_loose_file_loader->loose_file_path_sprintf_hook(context);
+}
+#endif

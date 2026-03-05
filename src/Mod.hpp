@@ -9,6 +9,7 @@
 #include <memory>
 
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 #include <sol/sol.hpp>
 
 #include <sdk/ReClass.hpp>
@@ -414,6 +415,31 @@ public:
 protected:
     bool m_was_key_down{ false };
     bool m_waiting_for_new_key{ false };
+};
+
+class ModString : public ModValue<std::string> {
+public:
+    using Ptr = std::unique_ptr<ModString>;
+
+    static auto create(std::string_view config_name, std::string default_value) {
+        return std::make_unique<ModString>(config_name, default_value);
+    }
+
+    ModString(std::string_view config_name, std::string default_value)
+        : ModValue{config_name, default_value} {
+    }
+
+    bool draw(std::string_view name) override {
+        ImGui::PushID(this);
+        auto ret = ImGui::InputText(name.data(), &m_value);
+        ImGui::PopID();
+
+        return ret;
+    }
+
+    void draw_value(std::string_view name) override {
+        ImGui::Text("%s: %s", name.data(), m_value.c_str());
+    }
 };
 
 // Render layer hooks
