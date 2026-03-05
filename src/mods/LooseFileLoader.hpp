@@ -5,8 +5,12 @@
 #include <spdlog/spdlog.h>
 
 #include <utility/FunctionHook.hpp>
+#include <safetyhook.hpp>
+#include <sdk/TDBVer.hpp>
 
 #include "../Mod.hpp"
+
+#define SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX (TDB_VER >= 81)
 
 class LooseFileLoader : public Mod {
 public:
@@ -66,9 +70,28 @@ private:
     std::shared_ptr<spdlog::logger> m_logger{nullptr};
     std::shared_ptr<spdlog::logger> m_loose_file_logger{nullptr};
 
+#pragma region Loose File Support for other platforms (EGS, ...)
+#if SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX
+    ModToggle::Ptr m_enable_custom_platform_prefix{ ModToggle::create(generate_name("EnableCustomPlatformPrefix"), false) };
+    ModString::Ptr m_target_platform_prefix{ ModString::create(generate_name("TargetPlatformPrefix"), "STM") };
+
+    std::vector<safetyhook::MidHook> m_loose_file_path_sprintf_hooks;
+    std::wstring cached_platform_string{L""};
+    std::shared_mutex m_platform_prefix_mutex{};
+
+    static void loose_file_path_sprintf_hook_wrapper(safetyhook::Context& context);
+    void loose_file_path_sprintf_hook(safetyhook::Context& context);
+    void find_and_hook_sprintf_for_loose_file_paths();
+#endif
+#pragma endregion
+
     ValueList m_options{
         *m_enabled,
         *m_log_accessed_files,
         *m_log_loose_files,
+#if SUPPORT_PATH_CUSTOM_PLATFORM_PREFIX
+        *m_enable_custom_platform_prefix,
+        *m_target_platform_prefix
+#endif
     };
 };

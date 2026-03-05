@@ -254,6 +254,7 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"dependencies/imgui/imgui_draw.cpp"
 		"dependencies/imgui/imgui_tables.cpp"
 		"dependencies/imgui/imgui_widgets.cpp"
+		"dependencies/imgui/misc/cpp/imgui_stdlib.cpp"
 		"dependencies/imgui/misc/freetype/imgui_freetype.cpp"
 	)
 
