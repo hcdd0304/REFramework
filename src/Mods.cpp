@@ -22,6 +22,8 @@
 
 #include "Mods.hpp"
 
+#define ENABLE_FAULTY_FILE_DETECTOR (TDB_VER >= 81)
+
 Mods::Mods() {
     m_mods.emplace_back(BackBufferRenderer::get());
     m_mods.emplace_back(REFrameworkConfig::get());
@@ -35,7 +37,7 @@ Mods::Mods() {
     m_mods.emplace_back(Hooks::get());
     m_mods.emplace_back(LooseFileLoader::get());
 
-#if defined(MHWILDS)
+#if ENABLE_FAULTY_FILE_DETECTOR
     m_mods.emplace_back(FaultyFileDetector::get());
 #endif
 
