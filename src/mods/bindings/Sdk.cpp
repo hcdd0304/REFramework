@@ -12,6 +12,7 @@
 #include "sdk/ResourceManager.hpp"
 #include "sdk/MotionFsm2Layer.hpp"
 #include "sdk/TDBVer.hpp"
+#include "sdk/SharedData.hpp"
 #include "utility/Memory.hpp"
 
 #include "../ScriptRunner.hpp"
@@ -1720,6 +1721,81 @@ void bindings::open_sdk(ScriptState* s) {
         uintptr_t n = *(uintptr_t*)&f;
         return *(void**)&f;
     };
+
+    // sdk.shared_data bindings
+    sdk.new_enum("SharedDataType",
+        "REManagedObject", (int)::sdk::shared_data::VariableType::REManagedObject,
+        "Double", (int)::sdk::shared_data::VariableType::Double,
+        "Int64", (int)::sdk::shared_data::VariableType::Int64,
+        "None", (int)::sdk::shared_data::VariableType::None
+    );
+
+    {
+        auto shared_data = lua.create_table();
+
+        shared_data["set_variable"] = [](sol::this_state s, std::string_view key, sol::object value) {
+            if (value.is<::REManagedObject*>()) {
+                ::sdk::shared_data::set_variable(key, value.as<::REManagedObject*>());
+            } else if (value.is<double>()) {
+                ::sdk::shared_data::set_variable(key, value.as<double>());
+            } else if (value.is<int64_t>()) {
+                ::sdk::shared_data::set_variable(key, value.as<int64_t>());
+            } else if (value.is<int>()) {
+                ::sdk::shared_data::set_variable(key, (int64_t)value.as<int>());
+            } else {
+                throw sol::error("sdk.shared_data.set_variable: value must be a REManagedObject*, double, or int64");
+            }
+        };
+
+        shared_data["get_variable_type"] = [](std::string_view key) -> int {
+            return (int)::sdk::shared_data::get_variable_type(key);
+        };
+
+        shared_data["get_variable_managed_object"] = [](sol::this_state s, std::string_view key) -> sol::object {
+            auto type = ::sdk::shared_data::get_variable_type(key);
+
+            if (type == ::sdk::shared_data::VariableType::None) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_managed_object: variable '") + std::string(key) + "' does not exist");
+            }
+
+            if (type != ::sdk::shared_data::VariableType::REManagedObject) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_managed_object: variable '") + std::string(key) + "' is not a REManagedObject");
+            }
+
+            return sol::make_object(s, ::sdk::shared_data::get_variable_re_managed_object(key));
+        };
+
+        shared_data["get_variable_double"] = [](sol::this_state s, std::string_view key) -> double {
+            auto type = ::sdk::shared_data::get_variable_type(key);
+
+            if (type == ::sdk::shared_data::VariableType::None) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_double: variable '") + std::string(key) + "' does not exist");
+            }
+
+            if (type != ::sdk::shared_data::VariableType::Double) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_double: variable '") + std::string(key) + "' is not a Double");
+            }
+
+            return ::sdk::shared_data::get_variable_double(key);
+        };
+
+        shared_data["get_variable_int64"] = [](sol::this_state s, std::string_view key) -> int64_t {
+            auto type = ::sdk::shared_data::get_variable_type(key);
+
+            if (type == ::sdk::shared_data::VariableType::None) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_int64: variable '") + std::string(key) + "' does not exist");
+            }
+
+            if (type != ::sdk::shared_data::VariableType::Int64) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_int64: variable '") + std::string(key) + "' is not an Int64");
+            }
+
+            return ::sdk::shared_data::get_variable_int64(key);
+        };
+
+        sdk["shared_data"] = shared_data;
+    }
+
     lua["sdk"] = sdk;
 
     lua.new_usertype<::sdk::RETypeDefinition>("RETypeDefinition",
