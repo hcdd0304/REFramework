@@ -1725,8 +1725,8 @@ void bindings::open_sdk(ScriptState* s) {
     // sdk.shared_data bindings
     sdk.new_enum("SharedDataType",
         "REManagedObject", (int)::sdk::shared_data::VariableType::REManagedObject,
-        "Double", (int)::sdk::shared_data::VariableType::Double,
-        "Int64", (int)::sdk::shared_data::VariableType::Int64,
+        "Number", (int)::sdk::shared_data::VariableType::Number,
+        "String", (int)::sdk::shared_data::VariableType::String,
         "None", (int)::sdk::shared_data::VariableType::None
     );
 
@@ -1734,21 +1734,27 @@ void bindings::open_sdk(ScriptState* s) {
         auto shared_data = lua.create_table();
 
         shared_data["set_variable"] = [](sol::this_state s, std::string_view key, sol::object value) {
-            if (value.is<::REManagedObject*>()) {
+            if (value.is<sol::nil_t>()) {
+                ::sdk::shared_data::set_variable(key, (::REManagedObject*)nullptr);
+            } else if (value.is<::REManagedObject*>()) {
                 ::sdk::shared_data::set_variable(key, value.as<::REManagedObject*>());
+            } else if (value.is<const char*>()) {
+                ::sdk::shared_data::set_variable(key, value.as<const char*>());
+            } else if (value.is<std::string>()) {
+                ::sdk::shared_data::set_variable(key, value.as<std::string>());
             } else if (value.is<double>()) {
                 ::sdk::shared_data::set_variable(key, value.as<double>());
-            } else if (value.is<int64_t>()) {
-                ::sdk::shared_data::set_variable(key, value.as<int64_t>());
-            } else if (value.is<int>()) {
-                ::sdk::shared_data::set_variable(key, (int64_t)value.as<int>());
             } else {
-                throw sol::error("sdk.shared_data.set_variable: value must be a REManagedObject*, double, or int64");
+                throw sol::error("sdk.shared_data.set_variable: value must be nil, a REManagedObject*, number, or string");
             }
         };
 
         shared_data["get_variable_type"] = [](std::string_view key) -> int {
             return (int)::sdk::shared_data::get_variable_type(key);
+        };
+
+        shared_data["clear_variable"] = [](std::string_view key) {
+            ::sdk::shared_data::clear_variable(key);
         };
 
         shared_data["get_variable_managed_object"] = [](sol::this_state s, std::string_view key) -> sol::object {
@@ -1765,32 +1771,32 @@ void bindings::open_sdk(ScriptState* s) {
             return sol::make_object(s, ::sdk::shared_data::get_variable_re_managed_object(key));
         };
 
-        shared_data["get_variable_double"] = [](sol::this_state s, std::string_view key) -> double {
+        shared_data["get_variable_number"] = [](sol::this_state s, std::string_view key) -> double {
             auto type = ::sdk::shared_data::get_variable_type(key);
 
             if (type == ::sdk::shared_data::VariableType::None) {
-                throw sol::error(std::string("sdk.shared_data.get_variable_double: variable '") + std::string(key) + "' does not exist");
+                throw sol::error(std::string("sdk.shared_data.get_variable_number: variable '") + std::string(key) + "' does not exist");
             }
 
-            if (type != ::sdk::shared_data::VariableType::Double) {
-                throw sol::error(std::string("sdk.shared_data.get_variable_double: variable '") + std::string(key) + "' is not a Double");
+            if (type != ::sdk::shared_data::VariableType::Number) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_number: variable '") + std::string(key) + "' is not a Number");
             }
 
-            return ::sdk::shared_data::get_variable_double(key);
+            return ::sdk::shared_data::get_variable_number(key);
         };
 
-        shared_data["get_variable_int64"] = [](sol::this_state s, std::string_view key) -> int64_t {
+        shared_data["get_variable_string"] = [](sol::this_state s, std::string_view key) -> std::string {
             auto type = ::sdk::shared_data::get_variable_type(key);
 
             if (type == ::sdk::shared_data::VariableType::None) {
-                throw sol::error(std::string("sdk.shared_data.get_variable_int64: variable '") + std::string(key) + "' does not exist");
+                throw sol::error(std::string("sdk.shared_data.get_variable_string: variable '") + std::string(key) + "' does not exist");
             }
 
-            if (type != ::sdk::shared_data::VariableType::Int64) {
-                throw sol::error(std::string("sdk.shared_data.get_variable_int64: variable '") + std::string(key) + "' is not an Int64");
+            if (type != ::sdk::shared_data::VariableType::String) {
+                throw sol::error(std::string("sdk.shared_data.get_variable_string: variable '") + std::string(key) + "' is not a String");
             }
 
-            return ::sdk::shared_data::get_variable_int64(key);
+            return ::sdk::shared_data::get_variable_string(key);
         };
 
         sdk["shared_data"] = shared_data;

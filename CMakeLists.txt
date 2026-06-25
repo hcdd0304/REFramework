@@ -506,6 +506,8 @@ if(REF_BUILD_FRAMEWORK AND CMAKE_SIZEOF_VOID_P EQUAL 8) # build-framework
 		"shared/sdk/SF6Utility.hpp"
 		"shared/sdk/SceneManager.cpp"
 		"shared/sdk/SceneManager.hpp"
+		"shared/sdk/SharedData.cpp"
+		"shared/sdk/SharedData.hpp"
 		"shared/sdk/SystemArray.cpp"
 		"shared/sdk/SystemArray.hpp"
 		"shared/sdk/TDBVer.hpp"

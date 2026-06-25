@@ -1082,6 +1082,47 @@ public:
         }
     };
 
+    /* shared_data */
+    void set_shared_variable(std::string_view key, API::ManagedObject* value) const {
+        static const auto fn = sdk()->functions->shared_data_set_variable_managed_object;
+        fn(key.data(), (REFrameworkManagedObjectHandle)value);
+    }
+
+    void set_shared_variable(std::string_view key, double value) const {
+        static const auto fn = sdk()->functions->shared_data_set_variable_number;
+        fn(key.data(), value);
+    }
+
+    void set_shared_variable(std::string_view key, std::string_view value) const {
+        static const auto fn = sdk()->functions->shared_data_set_variable_string;
+        fn(key.data(), value.data());
+    }
+
+    int get_shared_variable_type(std::string_view key) const {
+        static const auto fn = sdk()->functions->shared_data_get_variable_type;
+        return fn(key.data());
+    }
+
+    void clear_shared_variable(std::string_view key) const {
+        static const auto fn = sdk()->functions->shared_data_clear_variable;
+        fn(key.data());
+    }
+
+    API::ManagedObject* get_shared_variable_managed_object(std::string_view key) const {
+        static const auto fn = sdk()->functions->shared_data_get_variable_managed_object;
+        return (API::ManagedObject*)fn(key.data());
+    }
+
+    double get_shared_variable_number(std::string_view key) const {
+        static const auto fn = sdk()->functions->shared_data_get_variable_number;
+        return fn(key.data());
+    }
+
+    const char* get_shared_variable_string(std::string_view key) const {
+        static const auto fn = sdk()->functions->shared_data_get_variable_string;
+        return fn(key.data());
+    }
+
 private:
     const REFrameworkPluginInitializeParam* m_param;
     const REFrameworkSDKData* m_sdk;

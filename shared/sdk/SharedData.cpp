@@ -8,8 +8,8 @@ namespace sdk::shared_data {
     struct Variable {
         VariableType type{VariableType::None};
         ::REManagedObject* obj_value{nullptr};
-        double double_value{0.0};
-        int64_t int64_value{0};
+        double number_value{0.0};
+        std::string string_value{};
     };
 
     using VariableMap = std::unordered_map<std::string, Variable>;
@@ -27,14 +27,14 @@ namespace sdk::shared_data {
 
     void set_variable(std::string_view key, double value) {
         auto& var = get_variable_map()[std::string(key)];
-        var.type = VariableType::Double;
-        var.double_value = value;
+        var.type = VariableType::Number;
+        var.number_value = value;
     }
 
-    void set_variable(std::string_view key, int64_t value) {
+    void set_variable(std::string_view key, std::string_view value) {
         auto& var = get_variable_map()[std::string(key)];
-        var.type = VariableType::Int64;
-        var.int64_value = value;
+        var.type = VariableType::String;
+        var.string_value = value;
     }
 
     VariableType get_variable_type(std::string_view key) {
@@ -48,6 +48,11 @@ namespace sdk::shared_data {
         return it->second.type;
     }
 
+    void clear_variable(std::string_view key) {
+        auto& map = get_variable_map();
+        map.erase(std::string(key));
+    }
+
     ::REManagedObject* get_variable_re_managed_object(std::string_view key) {
         auto& map = get_variable_map();
         auto it = map.find(std::string(key));
@@ -59,25 +64,25 @@ namespace sdk::shared_data {
         return it->second.obj_value;
     }
 
-    double get_variable_double(std::string_view key) {
+    double get_variable_number(std::string_view key) {
         auto& map = get_variable_map();
         auto it = map.find(std::string(key));
 
-        if (it == map.end() || it->second.type != VariableType::Double) {
+        if (it == map.end() || it->second.type != VariableType::Number) {
             return 0.0;
         }
 
-        return it->second.double_value;
+        return it->second.number_value;
     }
 
-    int64_t get_variable_int64(std::string_view key) {
+    std::string get_variable_string(std::string_view key) {
         auto& map = get_variable_map();
         auto it = map.find(std::string(key));
 
-        if (it == map.end() || it->second.type != VariableType::Int64) {
-            return 0;
+        if (it == map.end() || it->second.type != VariableType::String) {
+            return {};
         }
 
-        return it->second.int64_value;
+        return it->second.string_value;
     }
 }

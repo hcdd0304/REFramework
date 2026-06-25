@@ -215,6 +215,7 @@ set(csharp-api_SOURCES
 	"REFrameworkNET/Proxy.cpp"
 	"REFrameworkNET/Resource.cpp"
 	"REFrameworkNET/ResourceManager.cpp"
+	"REFrameworkNET/SharedData.cpp"
 	"REFrameworkNET/SystemString.cpp"
 	"REFrameworkNET/TDB.cpp"
 	"REFrameworkNET/TypeDefinition.cpp"
@@ -250,6 +251,7 @@ set(csharp-api_SOURCES
 	"REFrameworkNET/Proxy.hpp"
 	"REFrameworkNET/Resource.hpp"
 	"REFrameworkNET/ResourceManager.hpp"
+	"REFrameworkNET/SharedData.hpp"
 	"REFrameworkNET/SystemString.hpp"
 	"REFrameworkNET/TDB.hpp"
 	"REFrameworkNET/TypeDefinition.hpp"
@@ -591,7 +593,7 @@ endif()
 # Target: CSharpAPITestRE9
 if(REFRAMEWORK_REF_ASSEMBLIES_EXIST_RE9) # build-csharp-test-re9
 	set(CSharpAPITestRE9_SOURCES
-		"test/Test/TestRE9.cs"
+		"test/Test/ZombieSpawner.cs"
 		cmake.toml
 	)
 

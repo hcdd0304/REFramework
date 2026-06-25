@@ -412,6 +412,16 @@ typedef struct {
     void (*deallocate)(void*);
 
     REFrameworkManagedObjectHandle (*create_managed_array)(REFrameworkTypeDefinitionHandle, unsigned int size);
+
+    /* shared_data */
+    void (*shared_data_set_variable_managed_object)(const char* key, REFrameworkManagedObjectHandle value);
+    void (*shared_data_set_variable_number)(const char* key, double value);
+    void (*shared_data_set_variable_string)(const char* key, const char* value);
+    int (*shared_data_get_variable_type)(const char* key);
+    void (*shared_data_clear_variable)(const char* key);
+    REFrameworkManagedObjectHandle (*shared_data_get_variable_managed_object)(const char* key);
+    double (*shared_data_get_variable_number)(const char* key);
+    const char* (*shared_data_get_variable_string)(const char* key);
 } REFrameworkSDKFunctions;
 
 /* these are NOT pointers to the actual objects */

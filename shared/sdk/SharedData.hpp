@@ -1,25 +1,28 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 
-struct REManagedObject;
+class REManagedObject;
 
 namespace sdk::shared_data {
     enum class VariableType : uint8_t {
         REManagedObject,
-        Double,
-        Int64,
+        Number,
+        String,
         None
     };
 
     void set_variable(std::string_view key, ::REManagedObject* value);
     void set_variable(std::string_view key, double value);
-    void set_variable(std::string_view key, int64_t value);
+    void set_variable(std::string_view key, std::string_view value);
 
     VariableType get_variable_type(std::string_view key);
 
+    void clear_variable(std::string_view key);
+
     ::REManagedObject* get_variable_re_managed_object(std::string_view key);
-    double get_variable_double(std::string_view key);
-    int64_t get_variable_int64(std::string_view key);
+    double get_variable_number(std::string_view key);
+    std::string get_variable_string(std::string_view key);
 }

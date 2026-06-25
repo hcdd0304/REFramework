@@ -9,6 +9,7 @@
 #include "utility/Module.hpp"
 
 #include "sdk/ResourceManager.hpp"
+#include "sdk/SharedData.hpp"
 #include "sdk/Memory.hpp"
 
 #include <sdk/GameIdentity.hpp>
@@ -201,6 +202,33 @@ REFrameworkSDKFunctions g_sdk_functions {
 
         auto runtime_type = ((sdk::RETypeDefinition*)tdef)->get_runtime_type();
         return (REFrameworkManagedObjectHandle)sdk::VM::create_managed_array(runtime_type, size);
+    },
+    // shared_data
+    [](const char* key, REFrameworkManagedObjectHandle value) {
+        ::sdk::shared_data::set_variable(key, (::REManagedObject*)value);
+    },
+    [](const char* key, double value) {
+        ::sdk::shared_data::set_variable(key, value);
+    },
+    [](const char* key, const char* value) {
+        ::sdk::shared_data::set_variable(key, value != nullptr ? std::string_view{value} : std::string_view{});
+    },
+    [](const char* key) -> int {
+        return (int)::sdk::shared_data::get_variable_type(key);
+    },
+    [](const char* key) {
+        ::sdk::shared_data::clear_variable(key);
+    },
+    [](const char* key) -> REFrameworkManagedObjectHandle {
+        return (REFrameworkManagedObjectHandle)::sdk::shared_data::get_variable_re_managed_object(key);
+    },
+    [](const char* key) -> double {
+        return ::sdk::shared_data::get_variable_number(key);
+    },
+    [](const char* key) -> const char* {
+        static std::string s_ret;
+        s_ret = ::sdk::shared_data::get_variable_string(key);
+        return s_ret.c_str();
     },
 };
 
